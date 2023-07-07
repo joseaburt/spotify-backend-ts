@@ -1,4 +1,4 @@
-import { Query } from '../shared//query';
+import { Query } from '../shared/query';
 import { EntityId, Optional, WithUserId } from '../shared/entity';
 import { CreatePlaylistDTO, Playlist, UpdatePlaylistDTO } from './index.model';
 
