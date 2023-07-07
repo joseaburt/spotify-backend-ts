@@ -1,8 +1,13 @@
 import { Entity } from '../shared/entity';
-import { BasicCredentials } from '../shared/security';
+import { BasicCredentials, WithoutPassword } from '../shared/security';
 
-export type User = Entity & BasicCredentials & {};
+export type User = Entity &
+  BasicCredentials & {
+    image: string;
+    lastName: string;
+    firstName: string;
+  };
 
-export type CreateUserDTO = {};
+export type CreateUserDTO = Omit<User, keyof Entity>;
 
-export type UpdateUserDTO = {};
+export type UpdateUserDTO = Partial<CreateUserDTO>;
