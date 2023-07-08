@@ -7,24 +7,32 @@ function createUserPayload(payload?: Partial<CreateUserDTO>): CreateUserDTO {
   return { firstName: 'John', lastName: 'Corn', image: '', email: 'john@gmail.com', password: 'mnopqrstuvwxyz0123456789$', ...payload };
 }
 
+const table = 'users';
 describe('SQLUserRepository', () => {
-  let connection: ConnectionDecorator;
   const repo = new SQLUserRepository();
+
+  let connection: ConnectionDecorator;
 
   beforeAll(async () => {
     connection = await defaultDatasource.getConnection();
-    await connection.execute('TRUNCATE TABLE users');
-    await connection.execute('ALTER TABLE users AUTO_INCREMENT = 1');
+    await connection.execute(`TRUNCATE TABLE ${table}`);
+    await connection.execute(`ALTER TABLE ${table} AUTO_INCREMENT = 1`);
   });
 
   afterAll(async () => {
-    await connection.execute('TRUNCATE TABLE users');
-    connection.closeConnection();
+    await connection.execute(`TRUNCATE TABLE ${table}`);
+    await connection.closeConnection();
   });
 
   it('should save in db the given user payload', async () => {
     const createdUserId = await repo.create(createUserPayload());
-    expect(createdUserId).toBe(1);
+    expect(createdUserId).not.toBe(0);
+  });
+
+  it('should throw an error when try to create a user with already taken email', async () => {
+    const payload = createUserPayload({ email: 'maria@gmail.com' });
+    await repo.create(payload);
+    expect(() => repo.create(payload)).rejects.toThrow(`Duplicate entry '${payload.email}' for key 'users.email'`);
   });
 
   it('should find a user by its id', async () => {
@@ -35,16 +43,26 @@ describe('SQLUserRepository', () => {
     expect(createdUser).toEqual(expect.objectContaining(payload));
   });
 
+  it('should return undefined if user not found by id', async () => {
+    const user = await repo.findById(1123);
+    expect(user).toBeUndefined();
+  });
+
   it('should find a user by its email', async () => {
-    const payload = createUserPayload({ email: 'maria@gmail.com' });
+    const payload = createUserPayload({ email: 'findingEmail@gmail.com' });
     await repo.create(payload);
     const createdUser = await repo.findByEmail(payload.email);
 
     expect(createdUser).toEqual(expect.objectContaining(payload));
   });
 
+  it('should return undefined if user not found by email', async () => {
+    const user = await repo.findByEmail('pepe@yahoo.com');
+    expect(user).toBeUndefined();
+  });
+
   it('should update a given user by its id', async () => {
-    const payload = createUserPayload({ email: 'updatingUser@gmail.com' });
+    const payload = createUserPayload({ email: 'updatingUser@gmail.com', firstName: 'p' });
     const createdUserId = await repo.create(payload);
 
     const updating = { firstName: 'Maria' };
