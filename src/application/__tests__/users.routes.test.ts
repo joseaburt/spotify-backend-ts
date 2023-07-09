@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import initRouter from '../routes/users';
-import mockUserRepository, { clearMocks } from '../__mocks__/users.repository';
+import mockUserRepository, { clearMocks } from '../../infrastructure/repositories/users/__mocks__/users.repository';
 import { makeCreateUserPayload, server, app, validateName } from './user-test-utils';
 
 server.registerRouter('/users', initRouter(mockUserRepository));
