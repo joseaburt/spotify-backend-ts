@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
+import { EncryptionService } from '../../domain/auth/contracts';
 
-export class Encrypt {
+export class Encrypt implements EncryptionService {
   private static instance: Encrypt;
   private saltRounds: number = 10;
   private constructor() {}

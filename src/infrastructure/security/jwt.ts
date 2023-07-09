@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
+import { JwtService } from '../../domain/auth/contracts';
 
 const { JWT_SECRET } = process.env;
 
-export class JWT {
+export class JWT implements JwtService {
   private secret: string;
   private static instance: JWT;
 
