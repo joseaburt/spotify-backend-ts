@@ -16,7 +16,9 @@
   },
   "license": "MIT",
   "scripts": {
-    "test": "jest --watchAll --verbose"
+    "test": "jest --watchAll --verbose",
+    "migrate": "node ./database/migrate.js",
+    "seed": "node ./database/seed.js"
   },
   "dependencies": {
     "@joseaburt/http-error": "^0.1.1",
