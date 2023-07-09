@@ -1,6 +1,6 @@
 import AuthService from './auth.service';
 import Jwt_ from '../../infrastructure/security/jwt';
-import Encrypt from '../../infrastructure/security/encrypt';
+import { createDbUser } from '../../shared/test-utils';
 import mockUserRepository, { clearMocks } from '../../infrastructure/repositories/users/__mocks__/users.repository';
 
 jest.mock('../../infrastructure/security/jwt', () => ({
@@ -13,11 +13,6 @@ describe('AuthService', () => {
   const service = new AuthService(mockUserRepository);
   const rawPassword = '@Pepito123';
 
-  function createDbUser() {
-    const hashedPassword = Encrypt.encode(rawPassword);
-    return { id: 1, password: hashedPassword, email: 'email@gmail.com' };
-  }
-
   beforeEach(() => {
     clearMocks();
   });
@@ -29,14 +24,14 @@ describe('AuthService', () => {
       mockUserRepository.findByEmail.mockImplementation(() => undefined);
 
       // When / Then
-      expect(() => service.login(credentials)).rejects.toThrow(`User not found by email "${credentials.email}"`);
+      expect(() => service.login(credentials)).rejects.toThrow('Invalid credentials');
       expect(mockUserRepository.findByEmail).toHaveBeenCalledTimes(1);
       expect(mockUserRepository.findByEmail).toHaveBeenCalledWith(credentials.email);
     });
 
     it('should throw error if given credential password does not match with user in db', async () => {
       // Given
-      const savedUser = createDbUser();
+      const savedUser = createDbUser(rawPassword);
       mockUserRepository.findByEmail.mockImplementation(() => savedUser);
 
       const incorrectPassword = '12345';
@@ -48,7 +43,7 @@ describe('AuthService', () => {
 
     it('should return user record plus signed access token', async () => {
       // Given
-      const savedUser = createDbUser();
+      const savedUser = createDbUser(rawPassword);
       mockUserRepository.findByEmail.mockImplementation(() => savedUser);
       const generatedToken = 'thetokenher';
       signMockReference.mockImplementation(() => generatedToken);
