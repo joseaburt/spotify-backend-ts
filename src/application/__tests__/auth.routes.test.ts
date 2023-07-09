@@ -1,21 +1,16 @@
 // yarn test auth.routes.test.ts
 import supertest from 'supertest';
 import initRouter from '../routes/auth';
-import { createDbUser } from '../../shared/test-utils';
+import { createDbUser, jwtServiceMock } from '../../shared/test-utils';
 import AuthService from '../../domain/auth/auth.service';
 import ExpressServer from '../../infrastructure/server/express-server';
 import mockUserRepository, { clearMocks } from '../../infrastructure/repositories/users/__mocks__/users.repository';
-
-const generatedToken = 'MY_GENERATED_JWT_TOKEN';
-
-jest.mock('../../infrastructure/security/jwt', () => ({
-  sign: () => generatedToken,
-}));
+import Encrypt from '../../infrastructure/security/encrypt';
 
 export const server = new ExpressServer();
 export const app = server.getApp();
 
-server.registerRouter('/auth', initRouter(new AuthService(mockUserRepository)));
+server.registerRouter('/auth', initRouter(new AuthService(mockUserRepository, jwtServiceMock, Encrypt)));
 
 describe('Auth Endpoint', () => {
   beforeEach(() => {
@@ -57,6 +52,8 @@ describe('Auth Endpoint', () => {
       // Given
       const userDb = createDbUser(rawPassword);
       mockUserRepository.findByEmail.mockImplementation(() => userDb);
+      const generatedToken = 'MY_GENERATED_JWT_TOKEN';
+      jwtServiceMock.sign.mockImplementation(() => generatedToken);
       const credentials = { email: userDb.email, password: rawPassword };
 
       // When
