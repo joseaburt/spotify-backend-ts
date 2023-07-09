@@ -7,6 +7,7 @@ export default function initRouter(repository: UserRepository): express.Router {
   const userController = new UserController(repository);
 
   usersRouter.get('/:id', userController.findById);
+  usersRouter.post('/', userController.create);
 
   return usersRouter;
 }
