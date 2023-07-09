@@ -25,7 +25,7 @@ describe('Auth Endpoint', () => {
   describe('POST /auth/login', () => {
     const rawPassword = '12345678';
 
-    it('should return 404 Not Found when given email in credentials is in any user in db', async () => {
+    it('should return 401 Unauthorized when given email in credentials is in any user in db', async () => {
       // Given
       const userDb = createDbUser(rawPassword);
       mockUserRepository.findByEmail.mockImplementation((email) => (userDb.email === email ? userDb : undefined));
