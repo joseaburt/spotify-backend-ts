@@ -1,16 +1,16 @@
+import { JwtService } from './contracts';
 import AuthService from './auth.service';
-import Jwt_ from '../../infrastructure/security/jwt';
 import { createDbUser } from '../../shared/test-utils';
+import Encrypt from '../../infrastructure/security/encrypt';
 import mockUserRepository, { clearMocks } from '../../infrastructure/repositories/users/__mocks__/users.repository';
 
-jest.mock('../../infrastructure/security/jwt', () => ({
+const jwtServiceMock = {
   sign: jest.fn(),
-}));
-
-const signMockReference = Jwt_.sign as jest.Mock;
+  verify: jest.fn(),
+};
 
 describe('AuthService', () => {
-  const service = new AuthService(mockUserRepository);
+  const service = new AuthService(mockUserRepository, jwtServiceMock as unknown as JwtService, Encrypt);
   const rawPassword = '@Pepito123';
 
   beforeEach(() => {
@@ -46,7 +46,7 @@ describe('AuthService', () => {
       const savedUser = createDbUser(rawPassword);
       mockUserRepository.findByEmail.mockImplementation(() => savedUser);
       const generatedToken = 'thetokenher';
-      signMockReference.mockImplementation(() => generatedToken);
+      jwtServiceMock.sign.mockImplementation(() => generatedToken);
 
       // When
       const credentials = { ...savedUser, password: rawPassword };
@@ -54,8 +54,8 @@ describe('AuthService', () => {
 
       // Then
       expect(user).toEqual(expect.objectContaining({ token: generatedToken, email: savedUser.email }));
-      expect(signMockReference).toHaveBeenCalledTimes(1);
-      expect(signMockReference).toHaveBeenCalledWith({ id: savedUser.id, email: savedUser.email });
+      expect(jwtServiceMock.sign).toHaveBeenCalledTimes(1);
+      expect(jwtServiceMock.sign).toHaveBeenCalledWith({ id: savedUser.id, email: savedUser.email });
     });
   });
 });
