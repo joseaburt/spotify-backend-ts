@@ -3,13 +3,14 @@ import http from 'http';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import compress from 'compression';
-import express, { Application } from 'express';
+import express, { Application, Request, Response } from 'express';
 
 export default class ExpressServer {
   private readonly port: number;
   private readonly host: string;
   private readonly app: Application;
   private readonly server: http.Server;
+  public rootRouter: express.Router;
 
   constructor(port: number = 8080, host?: string) {
     this.port = port;
@@ -18,7 +19,7 @@ export default class ExpressServer {
 
     // Registering base middlewares
     this.app.use(cors());
-    this.app.use(morgan('common'));
+    this.app.use(morgan('common', { skip: () => process.env.NODE_ENV === 'test' }));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(helmet.xssFilter());
@@ -26,6 +27,12 @@ export default class ExpressServer {
     this.app.use(helmet.hidePoweredBy());
     this.app.use(helmet.frameguard({ action: 'deny' }));
     this.app.use(compress());
+    this.rootRouter = express.Router();
+    this.app.use('/', this.rootRouter);
+
+    this.app.use((req: Request, res: Response) => {
+      res.status(404).send({ message: 'Resource not found' });
+    });
 
     this.server = http.createServer(this.app);
   }
@@ -35,7 +42,7 @@ export default class ExpressServer {
   }
 
   public registerRouter(path: string, router: express.Router) {
-    this.app.use(path, router);
+    this.rootRouter.use(path, router);
   }
 
   public start(): Promise<void> {
