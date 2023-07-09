@@ -1,0 +1,11 @@
+-- 20230709120010_create_likes_table.sql
+
+CREATE TABLE IF NOT EXISTS likes (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+	entity_type ENUM('artist', 'playlist') NOT NULL,
+	entity_id INT NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	deleted_at TIMESTAMP NULL,
+	creator_id INT NOT NULL
+);
