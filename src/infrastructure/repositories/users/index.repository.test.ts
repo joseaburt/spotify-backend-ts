@@ -1,5 +1,5 @@
-import { defaultDatasource } from '../../database';
 import SQLUserRepository from './index.repository';
+import { testConnection } from '../../../shared/test-utils';
 import { CreateUserDTO } from '../../../domain/users/index.model';
 import { ConnectionDecorator } from '@joseaburt/mysql2-query-builder';
 
@@ -14,14 +14,15 @@ describe('SQLUserRepository', () => {
   let connection: ConnectionDecorator;
 
   beforeAll(async () => {
-    connection = await defaultDatasource.getConnection();
-    await connection.execute(`TRUNCATE TABLE ${table}`);
-    await connection.execute(`ALTER TABLE ${table} AUTO_INCREMENT = 1`);
+    connection = await testConnection.getConnection();
   });
 
   afterAll(async () => {
-    await connection.execute(`TRUNCATE TABLE ${table}`);
     await connection.closeConnection();
+  });
+
+  beforeEach(async () => {
+    await connection.execute(`DELETE FROM ${table}`);
   });
 
   it('should save in db the given user payload', async () => {
