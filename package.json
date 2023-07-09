@@ -17,8 +17,9 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --watchAll --verbose",
-    "migrate": "node ./database/migrate.js",
-    "seed": "node ./database/seed.js"
+    "database:init": "node ./database/init.js",
+    "database:migrate": "node ./database/migrate.js",
+    "database:seed": "node ./database/seed.js"
   },
   "dependencies": {
     "@joseaburt/http-error": "^0.1.1",
