@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 const { JWT_SECRET } = process.env;
 
-export default class JWT {
+export class JWT {
   private secret: string;
   private static instance: JWT;
 
@@ -24,3 +24,5 @@ export default class JWT {
     return this.instance;
   }
 }
+
+export default JWT.getInstance();

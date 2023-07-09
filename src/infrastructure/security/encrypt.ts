@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 
-export default class Encrypt {
+export class Encrypt {
   private static instance: Encrypt;
   private saltRounds: number = 10;
   private constructor() {}
@@ -18,3 +18,5 @@ export default class Encrypt {
     return this.instance;
   }
 }
+
+export default Encrypt.getInstance();
