@@ -19,3 +19,7 @@ export const jwtServiceMock = {
   sign: jest.fn(),
   verify: jest.fn(),
 };
+
+export function throwError(message: string) {
+  throw new Error(message);
+}
